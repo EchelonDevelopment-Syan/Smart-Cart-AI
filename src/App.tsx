@@ -9,10 +9,13 @@ import {
   DetectedRecipe,
   ActiveTab,
   VoiceMessage,
+  ProductCategory,
 } from './types';
 import {
   INITIAL_ITEMS,
   INITIAL_RECIPES,
+  SAMPLE_DEMO_ITEMS,
+  SAMPLE_RECIPES,
   HILLSBOROUGH_STORE,
   INITIAL_VOICE_MESSAGES,
 } from './data/initialData';
@@ -30,13 +33,30 @@ import { Sparkles, Store, Mic, Sun, Moon, FileAudio } from 'lucide-react';
 
 export default function App() {
   const [items, setItems] = useState<ShoppingItem[]>(() => {
-    const saved = localStorage.getItem('smartcart_items');
-    return saved ? JSON.parse(saved) : INITIAL_ITEMS;
+    const saved = localStorage.getItem('smartcart_items_v2');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch {
+        return [];
+      }
+    }
+    // Remove previous hardcoded session data so user starts with a clean fresh list
+    localStorage.removeItem('smartcart_items');
+    return INITIAL_ITEMS;
   });
 
   const [recipes, setRecipes] = useState<DetectedRecipe[]>(() => {
-    const saved = localStorage.getItem('smartcart_recipes');
-    return saved ? JSON.parse(saved) : INITIAL_RECIPES;
+    const saved = localStorage.getItem('smartcart_recipes_v2');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch {
+        return [];
+      }
+    }
+    localStorage.removeItem('smartcart_recipes');
+    return INITIAL_RECIPES;
   });
 
   const [activeTab, setActiveTab] = useState<ActiveTab>('cart');
@@ -53,11 +73,11 @@ export default function App() {
 
   // Sync with localStorage
   useEffect(() => {
-    localStorage.setItem('smartcart_items', JSON.stringify(items));
+    localStorage.setItem('smartcart_items_v2', JSON.stringify(items));
   }, [items]);
 
   useEffect(() => {
-    localStorage.setItem('smartcart_recipes', JSON.stringify(recipes));
+    localStorage.setItem('smartcart_recipes_v2', JSON.stringify(recipes));
   }, [recipes]);
 
   // Handle toggling check on item
@@ -139,6 +159,168 @@ export default function App() {
       recipeName: 'Cheese Steaks',
     }));
     setItems((prev) => [...prev, ...newItems]);
+  };
+
+  const handleClearCart = () => {
+    setItems([]);
+    setRecipes([]);
+    localStorage.removeItem('smartcart_items_v2');
+    localStorage.removeItem('smartcart_recipes_v2');
+  };
+
+  const handleLoadSampleList = () => {
+    setItems(SAMPLE_DEMO_ITEMS);
+    setRecipes(SAMPLE_RECIPES);
+  };
+
+  const handleAddSingleItem = (name: string) => {
+    const lower = name.toLowerCase();
+    let category: ProductCategory = 'Pantry';
+    let aisle = 'Aisle 6 - Dry Grocery & Pantry';
+    let aisleNumber = 6;
+    const isOrganic = lower.includes('organic');
+    let est_price = 3.49;
+
+    if (
+      lower.includes('banana') ||
+      lower.includes('apple') ||
+      lower.includes('berry') ||
+      lower.includes('lettuce') ||
+      lower.includes('tomato') ||
+      lower.includes('onion') ||
+      lower.includes('pepper') ||
+      lower.includes('avocado') ||
+      lower.includes('fruit') ||
+      lower.includes('veg')
+    ) {
+      category = 'Produce';
+      aisle = 'Aisle 1 - Fresh Produce';
+      aisleNumber = 1;
+      est_price = 2.29;
+    } else if (
+      lower.includes('bread') ||
+      lower.includes('bagel') ||
+      lower.includes('roll') ||
+      lower.includes('muffin') ||
+      lower.includes('croissant') ||
+      lower.includes('cake') ||
+      lower.includes('bakery')
+    ) {
+      category = 'Bakery';
+      aisle = 'Aisle 2 - Fresh Bakery';
+      aisleNumber = 2;
+      est_price = 3.89;
+    } else if (
+      lower.includes('beef') ||
+      lower.includes('chicken') ||
+      lower.includes('steak') ||
+      lower.includes('pork') ||
+      lower.includes('salmon') ||
+      lower.includes('meat') ||
+      lower.includes('shrimp')
+    ) {
+      category = 'Meat';
+      aisle = 'Aisle 3 - Meat & Seafood Counter';
+      aisleNumber = 3;
+      est_price = 7.49;
+    } else if (
+      lower.includes('deli') ||
+      lower.includes('turkey') ||
+      lower.includes('ham') ||
+      lower.includes('cheese slice') ||
+      lower.includes('rotisserie')
+    ) {
+      category = 'Deli';
+      aisle = 'Aisle 4 - Fresh Deli Counter';
+      aisleNumber = 4;
+      est_price = 6.29;
+    } else if (
+      lower.includes('milk') ||
+      lower.includes('egg') ||
+      lower.includes('cheese') ||
+      lower.includes('butter') ||
+      lower.includes('yogurt') ||
+      lower.includes('cream')
+    ) {
+      category = 'Dairy';
+      aisle = 'Aisle 5 - Dairy & Refrigerated';
+      aisleNumber = 5;
+      est_price = 3.99;
+    } else if (
+      lower.includes('chip') ||
+      lower.includes('snack') ||
+      lower.includes('cookie') ||
+      lower.includes('cracker') ||
+      lower.includes('popcorn') ||
+      lower.includes('nut')
+    ) {
+      category = 'Snacks';
+      aisle = 'Aisle 8 - Snacks & Crackers';
+      aisleNumber = 8;
+      est_price = 4.29;
+    } else if (
+      lower.includes('water') ||
+      lower.includes('soda') ||
+      lower.includes('juice') ||
+      lower.includes('coffee') ||
+      lower.includes('tea') ||
+      lower.includes('beverage')
+    ) {
+      category = 'Beverages';
+      aisle = 'Aisle 9 - Beverages & Sparkling Water';
+      aisleNumber = 9;
+      est_price = 3.49;
+    } else if (
+      lower.includes('wipe') ||
+      lower.includes('diaper') ||
+      lower.includes('soap') ||
+      lower.includes('paper') ||
+      lower.includes('detergent') ||
+      lower.includes('clean')
+    ) {
+      category = 'Household';
+      aisle = 'Aisle 10 - Household & Baby Care';
+      aisleNumber = 10;
+      est_price = 5.49;
+    } else if (
+      lower.includes('ice cream') ||
+      lower.includes('frozen') ||
+      lower.includes('pizza') ||
+      lower.includes('waffle')
+    ) {
+      category = 'Frozen';
+      aisle = 'Aisle 7 - Frozen Foods';
+      aisleNumber = 7;
+      est_price = 4.99;
+    }
+
+    const newItem: ShoppingItem = {
+      id: `item-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+      item: name.trim(),
+      category,
+      est_price,
+      aisle,
+      aisleNumber,
+      isOrganic,
+      checked: false,
+      quantity: 1,
+    };
+
+    setItems((prev) => [newItem, ...prev]);
+  };
+
+  const handleUpdateQuantity = (id: string, delta: number) => {
+    setItems((prev) =>
+      prev
+        .map((item) => {
+          if (item.id === id) {
+            const nextQty = item.quantity + delta;
+            return nextQty > 0 ? { ...item, quantity: nextQty } : null;
+          }
+          return item;
+        })
+        .filter((item): item is ShoppingItem => item !== null)
+    );
   };
 
   return (
@@ -227,12 +409,19 @@ export default function App() {
           {activeTab === 'cart' && (
             <CartListView
               items={items}
+              recipes={recipes}
               onToggleItem={handleToggleItem}
+              onUpdateQuantity={handleUpdateQuantity}
+              onClearCart={handleClearCart}
+              onLoadSampleList={handleLoadSampleList}
+              onAddSingleItem={handleAddSingleItem}
               onSelectItem={(item) => setSelectedItem(item)}
               onOpenVoice={() => setVoiceSheetOpen(true)}
               onOpenRecipe={() => {
-                setActiveRecipe(recipes[0] || null);
-                setRecipeSheetOpen(true);
+                if (recipes.length > 0) {
+                  setActiveRecipe(recipes[0]);
+                  setRecipeSheetOpen(true);
+                }
               }}
               onStartStoreRoute={() => setActiveTab('layout')}
               onNavigateToTranscribe={() => setActiveTab('transcribe')}
@@ -279,7 +468,7 @@ export default function App() {
               items={items}
               storeName={HILLSBOROUGH_STORE.name}
               isHighContrast={isHighContrast}
-              onClearCart={() => setItems([])}
+              onClearCart={handleClearCart}
             />
           )}
 

@@ -44,109 +44,138 @@ export const RecipesView: React.FC<RecipesViewProps> = ({
       </div>
 
       {/* Detected Recipe Cards */}
-      <div className="space-y-4">
-        {recipes.map((recipe) => {
-          const missingCount = recipe.suggestedAdditions.filter(
-            (s) => !cartItems.some((ci) => ci.item.toLowerCase().includes(s.item.split(' ')[0].toLowerCase()))
-          ).length;
-
-          return (
-            <div
-              key={recipe.id}
-              className={`rounded-3xl border p-5 transition-colors ${
-                isHighContrast
-                  ? 'bg-black text-white border-white'
-                  : 'bg-white text-slate-900 border-slate-200 shadow-sm'
-              }`}
+      {recipes.length === 0 ? (
+        <div
+          className={`rounded-3xl border border-dashed p-8 text-center transition-colors ${
+            isHighContrast
+              ? 'border-zinc-700 bg-zinc-950 text-white'
+              : 'border-slate-200 bg-white text-slate-600 shadow-2xs'
+          }`}
+        >
+          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-400 mb-3">
+            <ChefHat className="h-7 w-7" />
+          </div>
+          <h3 className="text-base font-bold text-slate-900 dark:text-white">
+            No Recipes Detected Yet
+          </h3>
+          <p className="mt-1 text-xs text-slate-500 dark:text-slate-400 max-w-xs mx-auto leading-relaxed">
+            When you add recipe-related items (like hoagie rolls, taco shells, or pasta), SmartCart AI automatically detects meal plans and recommends missing ingredients.
+          </p>
+          <div className="mt-4 flex justify-center">
+            <button
+              onClick={onOpenVoice}
+              className="flex items-center gap-1.5 rounded-xl bg-amber-600 px-4 py-2 text-xs font-bold text-white shadow-xs hover:bg-amber-700 active:scale-95 transition-all"
             >
-              <div className="flex items-start justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-400">
-                    <ChefHat className="h-6 w-6" />
+              <Sparkles className="h-3.5 w-3.5" />
+              <span>Ask AI for a Meal Plan</span>
+            </button>
+          </div>
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {recipes.map((recipe) => {
+            const missingCount = recipe.suggestedAdditions.filter(
+              (s) => !cartItems.some((ci) => ci.item.toLowerCase().includes(s.item.split(' ')[0].toLowerCase()))
+            ).length;
+
+            return (
+              <div
+                key={recipe.id}
+                className={`rounded-3xl border p-5 transition-colors ${
+                  isHighContrast
+                    ? 'bg-black text-white border-white'
+                    : 'bg-white text-slate-900 border-slate-200 shadow-sm'
+                }`}
+              >
+                <div className="flex items-start justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-400">
+                      <ChefHat className="h-6 w-6" />
+                    </div>
+                    <div>
+                      <span className="text-[11px] font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400">
+                        Detected From Cart Items
+                      </span>
+                      <h3 className="text-lg font-black">{recipe.name}</h3>
+                      <p className="text-xs text-slate-500">{recipe.tagline}</p>
+                    </div>
                   </div>
-                  <div>
-                    <span className="text-[11px] font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400">
-                      Detected From Cart Items
-                    </span>
-                    <h3 className="text-lg font-black">{recipe.name}</h3>
-                    <p className="text-xs text-slate-500">{recipe.tagline}</p>
-                  </div>
+
+                  <button
+                    onClick={() => onOpenRecipeDetail(recipe)}
+                    className="flex items-center gap-1 rounded-xl bg-slate-100 dark:bg-slate-800 px-3 py-1.5 text-xs font-bold text-slate-700 dark:text-slate-200 hover:bg-emerald-100 dark:hover:bg-emerald-950 transition-colors"
+                  >
+                    <span>Details</span>
+                    <ArrowRight className="h-3.5 w-3.5" />
+                  </button>
                 </div>
 
-                <button
-                  onClick={() => onOpenRecipeDetail(recipe)}
-                  className="flex items-center gap-1 rounded-xl bg-slate-100 dark:bg-slate-800 px-3 py-1.5 text-xs font-bold text-slate-700 dark:text-slate-200 hover:bg-emerald-100 dark:hover:bg-emerald-950 transition-colors"
-                >
-                  <span>Details</span>
-                  <ArrowRight className="h-3.5 w-3.5" />
-                </button>
-              </div>
-
-              {/* Matched Items in Cart */}
-              <div className="mt-4 rounded-2xl bg-slate-50 dark:bg-slate-900 p-3.5 border border-slate-200/60 dark:border-slate-800">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
-                  Secured Ingredients in Cart:
-                </span>
-                <div className="mt-1.5 flex flex-wrap gap-1.5">
-                  {recipe.matchedItems.map((item, idx) => (
-                    <span
-                      key={idx}
-                      className="inline-flex items-center gap-1 rounded-lg bg-emerald-100 dark:bg-emerald-950 px-2.5 py-1 text-xs font-bold text-emerald-800 dark:text-emerald-300"
-                    >
-                      <Check className="h-3.5 w-3.5" />
-                      {item}
-                    </span>
-                  ))}
-                </div>
-              </div>
-
-              {/* Missing Ingredients Quick Add */}
-              <div className="mt-4">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
-                    Suggested additions ({missingCount} missing):
+                {/* Matched Items in Cart */}
+                <div className="mt-4 rounded-2xl bg-slate-50 dark:bg-slate-900 p-3.5 border border-slate-200/60 dark:border-slate-800">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                    Secured Ingredients in Cart:
                   </span>
+                  <div className="mt-1.5 flex flex-wrap gap-1.5">
+                    {recipe.matchedItems.map((item, idx) => (
+                      <span
+                        key={idx}
+                        className="inline-flex items-center gap-1 rounded-lg bg-emerald-100 dark:bg-emerald-950 px-2.5 py-1 text-xs font-bold text-emerald-800 dark:text-emerald-300"
+                      >
+                        <Check className="h-3.5 w-3.5" />
+                        {item}
+                      </span>
+                    ))}
+                  </div>
                 </div>
 
-                <div className="space-y-2">
-                  {recipe.suggestedAdditions.slice(0, 3).map((sug, idx) => {
-                    const alreadyIn = cartItems.some((ci) =>
-                      ci.item.toLowerCase().includes(sug.item.split(' ')[0].toLowerCase())
-                    );
-                    return (
-                      <div
-                        key={idx}
-                        className="flex items-center justify-between rounded-xl border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 p-2.5"
-                      >
-                        <div>
-                          <div className="text-xs font-bold text-slate-900 dark:text-white">
-                            {sug.item}
-                          </div>
-                          <span className="text-[11px] text-slate-400">
-                            ${sug.est_price.toFixed(2)} • {sug.aisle}
-                          </span>
-                        </div>
+                {/* Missing Ingredients Quick Add */}
+                <div className="mt-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
+                      Suggested additions ({missingCount} missing):
+                    </span>
+                  </div>
 
-                        {alreadyIn ? (
-                          <span className="text-[11px] font-bold text-emerald-600">In Cart</span>
-                        ) : (
-                          <button
-                            onClick={() => onAddAddition(sug)}
-                            className="flex items-center gap-1 rounded-lg bg-emerald-600 px-2.5 py-1 text-xs font-bold text-white shadow-xs active:scale-95"
-                          >
-                            <Plus className="h-3 w-3" />
-                            <span>Add</span>
-                          </button>
-                        )}
-                      </div>
-                    );
-                  })}
+                  <div className="space-y-2">
+                    {recipe.suggestedAdditions.slice(0, 3).map((sug, idx) => {
+                      const alreadyIn = cartItems.some((ci) =>
+                        ci.item.toLowerCase().includes(sug.item.split(' ')[0].toLowerCase())
+                      );
+                      return (
+                        <div
+                          key={idx}
+                          className="flex items-center justify-between rounded-xl border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 p-2.5"
+                        >
+                          <div>
+                            <div className="text-xs font-bold text-slate-900 dark:text-white">
+                              {sug.item}
+                            </div>
+                            <span className="text-[11px] text-slate-400">
+                              ${sug.est_price.toFixed(2)} • {sug.aisle}
+                            </span>
+                          </div>
+
+                          {alreadyIn ? (
+                            <span className="text-[11px] font-bold text-emerald-600">In Cart</span>
+                          ) : (
+                            <button
+                              onClick={() => onAddAddition(sug)}
+                              className="flex items-center gap-1 rounded-lg bg-emerald-600 px-2.5 py-1 text-xs font-bold text-white shadow-xs active:scale-95"
+                            >
+                              <Plus className="h-3 w-3" />
+                              <span>Add</span>
+                            </button>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
               </div>
-            </div>
-          );
-        })}
-      </div>
+            );
+          })}
+        </div>
+      )}
 
       {/* Voice Recipe Search CTA */}
       <button

@@ -1,6 +1,8 @@
 import { ShoppingItem, DetectedRecipe, StoreLayout, VoiceMessage, ImageAnimationProject } from '../types';
 
-export const INITIAL_ITEMS: ShoppingItem[] = [
+export const INITIAL_ITEMS: ShoppingItem[] = [];
+
+export const SAMPLE_DEMO_ITEMS: ShoppingItem[] = [
   {
     id: 'item-1',
     item: 'Bananas (Yellow, ripe bunch)',
@@ -88,7 +90,9 @@ export const INITIAL_ITEMS: ShoppingItem[] = [
   },
 ];
 
-export const INITIAL_RECIPES: DetectedRecipe[] = [
+export const INITIAL_RECIPES: DetectedRecipe[] = [];
+
+export const SAMPLE_RECIPES: DetectedRecipe[] = [
   {
     id: 'recipe-cheese-steaks',
     name: 'Cheese Steaks',
