@@ -16,17 +16,17 @@ import {
   HILLSBOROUGH_STORE,
   INITIAL_VOICE_MESSAGES,
 } from './data/initialData';
-import { soundEngine } from './services/soundService';
 import { ThumbZoneNav } from './components/ThumbZoneNav';
-import { AudioBar } from './components/AudioBar';
 import { CartListView } from './components/CartListView';
-import { AisleNavigatorView } from './components/AisleNavigatorView';
+import { StoreLayoutView } from './components/StoreLayoutView';
+import { AudioTranscribeView } from './components/AudioTranscribeView';
+import { ImageToVideoView } from './components/ImageToVideoView';
 import { RecipesView } from './components/RecipesView';
-import { SootheView } from './components/SootheView';
+import { CheckoutView } from './components/CheckoutView';
 import { VoiceAssistantSheet } from './components/VoiceAssistantSheet';
 import { ItemDetailSheet } from './components/ItemDetailSheet';
 import { RecipeDetectiveSheet } from './components/RecipeDetectiveSheet';
-import { Sparkles, Store, Mic, Moon } from 'lucide-react';
+import { Sparkles, Store, Mic, Sun, Moon, FileAudio } from 'lucide-react';
 
 export default function App() {
   const [items, setItems] = useState<ShoppingItem[]>(() => {
@@ -45,11 +45,7 @@ export default function App() {
   const [activeRecipe, setActiveRecipe] = useState<DetectedRecipe | null>(null);
   const [recipeSheetOpen, setRecipeSheetOpen] = useState(false);
 
-  // Audio persistence
-  const [isAudioPlaying, setIsAudioPlaying] = useState(false);
-  const [audioVolume, setAudioVolume] = useState(0.25);
-
-  // Visual acuity mode
+  // Visual acuity / in-store high contrast mode
   const [isHighContrast, setIsHighContrast] = useState(false);
 
   // Voice Chat conversation
@@ -145,30 +141,12 @@ export default function App() {
     setItems((prev) => [...prev, ...newItems]);
   };
 
-  // Audio synthesize toggle
-  const handleToggleAudio = () => {
-    if (isAudioPlaying) {
-      soundEngine.stop();
-      setIsAudioPlaying(false);
-    } else {
-      soundEngine.start();
-      setIsAudioPlaying(true);
-    }
-  };
-
-  const handleStopAudio = () => {
-    soundEngine.stop();
-    setIsAudioPlaying(false);
-  };
-
   return (
     <div
       id="smartcart-app-root"
       className={`min-h-screen w-full transition-colors duration-300 font-sans ${
         isHighContrast
           ? 'bg-black text-white'
-          : activeTab === 'soothe'
-          ? 'bg-[#04040e] text-slate-100'
           : 'bg-slate-50 text-slate-900'
       }`}
     >
@@ -203,6 +181,19 @@ export default function App() {
           </div>
 
           <div className="flex items-center gap-1.5">
+            {/* Quick Transcribe button */}
+            <button
+              onClick={() => setActiveTab('transcribe')}
+              className={`flex h-8 w-8 items-center justify-center rounded-xl transition-all active:scale-90 ${
+                activeTab === 'transcribe'
+                  ? 'bg-teal-600 text-white'
+                  : 'bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300'
+              }`}
+              title="Transcribe Audio Shopping Memo"
+            >
+              <FileAudio className="h-4 w-4" />
+            </button>
+
             {/* Quick Mic button in header */}
             <button
               onClick={() => setVoiceSheetOpen(true)}
@@ -216,17 +207,17 @@ export default function App() {
               <Mic className="h-4 w-4" />
             </button>
 
-            {/* Night / Soothe Quick Toggle */}
+            {/* High Contrast / Night Vision Toggle */}
             <button
-              onClick={() => setActiveTab((prev) => (prev === 'soothe' ? 'cart' : 'soothe'))}
+              onClick={() => setIsHighContrast(!isHighContrast)}
               className={`flex h-8 w-8 items-center justify-center rounded-xl transition-all active:scale-90 ${
-                activeTab === 'soothe'
-                  ? 'bg-indigo-600 text-white'
-                  : 'bg-slate-200 text-slate-700 hover:bg-slate-300 dark:bg-slate-800 dark:text-slate-300'
+                isHighContrast
+                  ? 'bg-yellow-400 text-black font-black'
+                  : 'bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300'
               }`}
-              title="Toggle Soothe Mode"
+              title="Toggle High Contrast Display"
             >
-              <Moon className="h-4 w-4" />
+              {isHighContrast ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
             </button>
           </div>
         </header>
@@ -243,19 +234,29 @@ export default function App() {
                 setActiveRecipe(recipes[0] || null);
                 setRecipeSheetOpen(true);
               }}
-              onStartStoreRoute={() => setActiveTab('aisle')}
+              onStartStoreRoute={() => setActiveTab('layout')}
+              onNavigateToTranscribe={() => setActiveTab('transcribe')}
+              onNavigateToAnimate={() => setActiveTab('animate')}
+              onNavigateToLayout={() => setActiveTab('layout')}
               storeName={HILLSBOROUGH_STORE.name}
               isHighContrast={isHighContrast}
             />
           )}
 
-          {activeTab === 'aisle' && (
-            <AisleNavigatorView
+          {activeTab === 'layout' && (
+            <StoreLayoutView
               items={items}
               onToggleItem={handleToggleItem}
-              onSelectItem={(item) => setSelectedItem(item)}
-              store={HILLSBOROUGH_STORE}
               isHighContrast={isHighContrast}
+            />
+          )}
+
+          {activeTab === 'transcribe' && (
+            <AudioTranscribeView
+              onAddItems={handleAddItems}
+              onNavigateToLayout={() => setActiveTab('layout')}
+              isHighContrast={isHighContrast}
+              storeName={HILLSBOROUGH_STORE.name}
             />
           )}
 
@@ -273,25 +274,21 @@ export default function App() {
             />
           )}
 
-          {activeTab === 'soothe' && (
-            <SootheView
-              isAudioPlaying={isAudioPlaying}
-              onToggleAudio={handleToggleAudio}
-              volume={audioVolume}
-              onVolumeChange={setAudioVolume}
+          {activeTab === 'checkout' && (
+            <CheckoutView
+              items={items}
+              storeName={HILLSBOROUGH_STORE.name}
               isHighContrast={isHighContrast}
-              onToggleHighContrast={() => setIsHighContrast(!isHighContrast)}
+              onClearCart={() => setItems([])}
+            />
+          )}
+
+          {activeTab === 'animate' && (
+            <ImageToVideoView
+              isHighContrast={isHighContrast}
             />
           )}
         </main>
-
-        {/* Persistent 60 BPM Audio Bar directly above bottom nav when playing */}
-        <AudioBar
-          isPlaying={isAudioPlaying && activeTab !== 'soothe'}
-          onStop={handleStopAudio}
-          volume={audioVolume}
-          onVolumeChange={setAudioVolume}
-        />
 
         {/* Bottom Thumb Zone Navigation Bar */}
         <ThumbZoneNav

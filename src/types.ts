@@ -4,9 +4,10 @@ export type ProductCategory =
   | 'Deli'
   | 'Dairy'
   | 'Meat'
-  | 'Snacks'
   | 'Pantry'
   | 'Frozen'
+  | 'Household'
+  | 'Snacks'
   | 'Beverages'
   | 'General';
 
@@ -38,16 +39,25 @@ export interface DetectedRecipe {
   }>;
 }
 
+export interface AisleInfo {
+  number: number;
+  name: string;
+  category: ProductCategory;
+  description: string;
+  zone: 'perimeter' | 'center' | 'checkout' | 'entrance';
+  x: number; // 0-100% on floor plan diagram
+  y: number; // 0-100% on floor plan diagram
+  tip?: string;
+}
+
 export interface StoreLayout {
   id: string;
   name: string;
+  type: 'typical_supermarket' | 'walmart_neighborhood';
   location: string;
-  aisles: Array<{
-    number: number;
-    name: string;
-    category: ProductCategory;
-    description: string;
-  }>;
+  description: string;
+  optimalSequence: string[];
+  aisles: AisleInfo[];
 }
 
 export interface VoiceMessage {
@@ -58,4 +68,37 @@ export interface VoiceMessage {
   actionDetails?: string;
 }
 
-export type ActiveTab = 'cart' | 'aisle' | 'recipes' | 'soothe';
+export type ActiveTab = 'cart' | 'layout' | 'transcribe' | 'recipes' | 'checkout' | 'animate';
+
+export interface TranscriptionResult {
+  transcript: string;
+  confidence?: number;
+  extractedItems: Array<{
+    item: string;
+    category: ProductCategory;
+    est_price: number;
+    aisle: string;
+    isOrganic?: boolean;
+    quantity?: number;
+    notes?: string;
+  }>;
+  detectedRecipes?: string[];
+  routeOptimizationTip?: string;
+}
+
+export type AnimationMotionStyle =
+  | 'ken_burns' // Slow cinematic zoom and pan
+  | 'steam_sizzle' // Hot sizzling vapor/steam particles & glow
+  | 'macro_orbit' // 360 focal camera drift
+  | 'culinary_glow'; // Warm appetizing culinary lighting and motion
+
+export interface ImageAnimationProject {
+  id: string;
+  title: string;
+  imageUrl: string;
+  caption: string;
+  motionStyle: AnimationMotionStyle;
+  durationSeconds: number;
+  includeNarration: boolean;
+}
+

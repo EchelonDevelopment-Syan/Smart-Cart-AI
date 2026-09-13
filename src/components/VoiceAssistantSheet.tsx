@@ -283,7 +283,7 @@ export const VoiceAssistantSheet: React.FC<VoiceAssistantSheetProps> = ({
               )}
             </div>
 
-            {/* Quick Cognitive Offloading Chips (No typing needed while holding baby!) */}
+            {/* Quick One-Handed Voice Command Chips */}
             <div className="border-t border-slate-100 dark:border-slate-800 px-3 py-2 bg-slate-50/70 dark:bg-slate-900/50">
               <div className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 mb-1.5 px-1">
                 One-Handed Quick Voice Chips

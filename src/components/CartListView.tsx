@@ -1,6 +1,17 @@
 import React from 'react';
 import { ShoppingItem, ProductCategory } from '../types';
-import { CheckCircle2, Circle, Sparkles, ChefHat, Leaf, Plus, ArrowRight } from 'lucide-react';
+import {
+  CheckCircle2,
+  Circle,
+  Sparkles,
+  ChefHat,
+  Leaf,
+  Plus,
+  ArrowRight,
+  Mic,
+  Film,
+  Compass
+} from 'lucide-react';
 
 interface CartListViewProps {
   items: ShoppingItem[];
@@ -9,6 +20,9 @@ interface CartListViewProps {
   onOpenVoice: () => void;
   onOpenRecipe: () => void;
   onStartStoreRoute: () => void;
+  onNavigateToTranscribe?: () => void;
+  onNavigateToAnimate?: () => void;
+  onNavigateToLayout?: () => void;
   storeName: string;
   isHighContrast: boolean;
 }
@@ -16,12 +30,14 @@ interface CartListViewProps {
 const CATEGORY_ORDER: ProductCategory[] = [
   'Produce',
   'Bakery',
+  'Meat',
   'Deli',
   'Dairy',
-  'Meat',
-  'Snacks',
   'Pantry',
   'Frozen',
+  'Household',
+  'Snacks',
+  'Beverages',
   'General',
 ];
 
@@ -32,13 +48,16 @@ export const CartListView: React.FC<CartListViewProps> = ({
   onOpenVoice,
   onOpenRecipe,
   onStartStoreRoute,
+  onNavigateToTranscribe,
+  onNavigateToAnimate,
+  onNavigateToLayout,
   storeName,
   isHighContrast,
 }) => {
   const totalEst = items.reduce((sum, i) => sum + i.est_price * i.quantity, 0);
   const checkedCount = items.filter((i) => i.checked).length;
 
-  // Group items by category according to Walmart Hillsborough physical store layout
+  // Group items by category according to common store aisles
   const groupedItems = CATEGORY_ORDER.reduce((acc, cat) => {
     const catItems = items.filter((i) => i.category === cat);
     if (catItems.length > 0) {
@@ -58,7 +77,7 @@ export const CartListView: React.FC<CartListViewProps> = ({
         <div className="flex items-center justify-between text-xs font-semibold text-emerald-200">
           <span className="flex items-center gap-1">
             <Sparkles className="h-3.5 w-3.5 text-yellow-300" />
-            Organized by Store Layout
+            Grouped by Common Store Aisles
           </span>
           <span className="rounded-full bg-emerald-800/80 px-2 py-0.5 text-[11px] font-bold">
             {checkedCount}/{items.length} Checked
@@ -67,8 +86,41 @@ export const CartListView: React.FC<CartListViewProps> = ({
 
         <h2 className="mt-1 text-base font-black tracking-tight">{storeName}</h2>
 
-        {/* Recipe & Preference Callouts */}
+        {/* Quick Action Shortcuts */}
         <div className="mt-3 flex flex-wrap gap-2">
+          {onNavigateToTranscribe && (
+            <button
+              onClick={onNavigateToTranscribe}
+              className="flex items-center gap-1.5 rounded-xl bg-teal-500/20 border border-teal-300/40 px-2.5 py-1.5 text-xs font-bold text-teal-200 hover:bg-teal-500/30 transition-all active:scale-95"
+            >
+              <Mic className="h-3.5 w-3.5 text-teal-300" />
+              <span>Transcribe Audio</span>
+            </button>
+          )}
+
+          {onNavigateToAnimate && (
+            <button
+              onClick={onNavigateToAnimate}
+              className="flex items-center gap-1.5 rounded-xl bg-orange-500/20 border border-orange-300/40 px-2.5 py-1.5 text-xs font-bold text-orange-200 hover:bg-orange-500/30 transition-all active:scale-95"
+            >
+              <Film className="h-3.5 w-3.5 text-orange-300" />
+              <span>Animate Images into Video</span>
+            </button>
+          )}
+
+          {onNavigateToLayout && (
+            <button
+              onClick={onNavigateToLayout}
+              className="flex items-center gap-1.5 rounded-xl bg-emerald-500/20 border border-emerald-300/40 px-2.5 py-1.5 text-xs font-bold text-emerald-200 hover:bg-emerald-500/30 transition-all active:scale-95"
+            >
+              <Compass className="h-3.5 w-3.5 text-emerald-300" />
+              <span>Suggested Store Layout</span>
+            </button>
+          )}
+        </div>
+
+        {/* Recipe & Preference Callouts */}
+        <div className="mt-2.5 flex flex-wrap gap-2">
           <button
             onClick={onOpenRecipe}
             className="flex items-center gap-1.5 rounded-xl bg-amber-500/25 border border-amber-400/40 px-3 py-1.5 text-xs font-bold text-amber-200 hover:bg-amber-500/35 transition-all active:scale-95"
@@ -98,7 +150,7 @@ export const CartListView: React.FC<CartListViewProps> = ({
             onClick={onStartStoreRoute}
             className="flex items-center gap-2 rounded-2xl bg-white px-4 py-2.5 text-xs font-black text-emerald-950 shadow-lg hover:bg-emerald-50 active:scale-95 transition-transform"
           >
-            <span>Ready to head to store?</span>
+            <span>Optimized Route Walk</span>
             <ArrowRight className="h-4 w-4" />
           </button>
         </div>

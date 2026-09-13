@@ -1,6 +1,6 @@
 {
   "name": "SmartCart AI",
-  "description": "Voice-to-commerce shopping engine that detects recipes, organizes carts by store aisle layout, and offers one-handed in-store navigation.",
+  "description": "Voice-to-commerce shopping engine that transcribes audio, animates food images into video, groups items by common supermarket aisles, and optimizes store layouts.",
   "requestFramePermissions": ["microphone"],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }
